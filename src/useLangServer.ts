@@ -22,7 +22,8 @@ export function useLangServer() {
 			ts,
 			lzstring
 		)
-		fsMap.set('index.ts', 'const foo = "Hello World"')
+		const content = 'const foo = "Hello World"'
+		fsMap.set('index.ts', content)
 
 		const system = createSystem(fsMap)
 
@@ -34,14 +35,20 @@ export function useLangServer() {
 			compilerOpts
 		)
 
+		const completions = newEnv.languageService.getCompletionsAtPosition(
+			'index.ts',
+			content.length,
+			{}
+		)
+
+		console.log({ completions })
+
 		setEnv(newEnv)
 	}
 
 	if (!loaded.current) {
 		load()
 	}
-
-	console.log(env?.languageService)
 
 	return env
 }
