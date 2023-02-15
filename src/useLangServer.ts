@@ -11,6 +11,7 @@ import { useRef, useState } from 'react'
 
 export function useLangServer() {
 	const [env, setEnv] = useState<VirtualTypeScriptEnvironment>()
+	const [fsMap, setFsMap] = useState<Map<string, string>>()
 	const loaded = useRef(false)
 
 	async function load() {
@@ -22,7 +23,7 @@ export function useLangServer() {
 			ts,
 			lzstring
 		)
-		const content = 'const foo = "Hello World"'
+		const content = 'const foo = "Hello World".'
 		fsMap.set('index.ts', content)
 
 		const system = createSystem(fsMap)
@@ -35,20 +36,13 @@ export function useLangServer() {
 			compilerOpts
 		)
 
-		const completions = newEnv.languageService.getCompletionsAtPosition(
-			'index.ts',
-			content.length,
-			{}
-		)
-
-		console.log({ completions })
-
 		setEnv(newEnv)
+		setFsMap(fsMap)
 	}
 
 	if (!loaded.current) {
 		load()
 	}
 
-	return env
+	return { env, fsMap }
 }
