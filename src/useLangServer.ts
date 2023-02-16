@@ -16,19 +16,31 @@ export function useLangServer() {
 
 	async function load() {
 		loaded.current = true
+		const compilerOpts = {
+			target: ts.ScriptTarget.ES2021,
+		}
 		const fsMap = await createDefaultMapFromCDN(
-			{},
+			compilerOpts,
 			ts.version,
 			true,
 			ts,
 			lzstring
 		)
-		const content = 'const foo = "Hello World".'
-		fsMap.set('index.ts', content)
+
+		const flowHelpers = `
+		export type Flow = {
+			status: 'Active' | 'Suspended'
+		};
+		`
+
+		const version = '4.9.5'
+		const filePrefix = `ts-lib/typescript/${version}`
+
+		fsMap.set('index.ts', 'intialValue')
+		fsMap.set(`${filePrefix}/index.d.ts`, flowHelpers)
+		localStorage.setItem(`${filePrefix}/index.d.ts`, flowHelpers)
 
 		const system = createSystem(fsMap)
-
-		const compilerOpts = {}
 		const newEnv = createVirtualTypeScriptEnvironment(
 			system,
 			['index.ts'],
