@@ -43,7 +43,7 @@ export function useLangServer() {
 		const system = createSystem(fsMap)
 		const newEnv = createVirtualTypeScriptEnvironment(
 			system,
-			['index.ts'],
+			['index.ts', `${filePrefix}/index.d.ts`],
 			ts,
 			compilerOpts
 		)
