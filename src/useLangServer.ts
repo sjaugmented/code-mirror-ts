@@ -4,6 +4,7 @@ import lzstring from 'lz-string'
 import {
 	createDefaultMapFromCDN,
 	createSystem,
+	createVirtualCompilerHost,
 	createVirtualTypeScriptEnvironment,
 	VirtualTypeScriptEnvironment,
 } from '@typescript/vfs'
@@ -27,23 +28,42 @@ export function useLangServer() {
 			lzstring
 		)
 
-		const flowHelpers = `
-		export type Flow = {
-			status: 'Active' | 'Suspended'
-		};
+		const globalTypes = `
+		type Flow = {
+			flowInfo: () => void;
+			flowId: number;
+		}
+		const myFlow: Flow;
+		let myTimeout: number;
+		const myVersion: string;
+		class Cat {
+		  constructor(n: number);
+		  readonly age: number;
+		  purr(): void;
+		}
+		interface CatSettings {
+		  weight: number;
+		  name: string;
+		  tailLength?: number;
+		}
+		type VetID = string | number;
+		function checkCat(c: Cat, s?: VetID);
 		`
 
-		const version = '4.9.5'
-		const filePrefix = `ts-lib/typescript/${version}`
+		const filePrefix = `ts-lib-${ts.version}-lib.`
+		const globalFilename = `globals.d.ts`
 
-		fsMap.set('index.ts', 'intialValue')
-		fsMap.set(`${filePrefix}/index.d.ts`, flowHelpers)
-		localStorage.setItem(`${filePrefix}/index.d.ts`, flowHelpers)
+		fsMap.set(
+			'index.ts',
+			'/// <reference path="global.d.ts" />\nimport * from "path";\ninitialVal'
+		)
+		fsMap.set(globalFilename, globalTypes)
+		localStorage.setItem(globalFilename, globalTypes)
 
 		const system = createSystem(fsMap)
 		const newEnv = createVirtualTypeScriptEnvironment(
 			system,
-			['index.ts', `${filePrefix}/index.d.ts`],
+			['index.ts', globalFilename],
 			ts,
 			compilerOpts
 		)

@@ -16,7 +16,11 @@ function App() {
 	const { env, fsMap } = useLangServer()
 
 	function handleChange(val: string) {
-		fsMap?.set('index.ts', val)
+		fsMap?.set(
+			'index.ts',
+			`/// <reference path="global.d.ts" />\nimport * from "path";\n${val}`
+		)
+		console.log(fsMap?.get('index.ts'))
 	}
 
 	const completionSource = async (
@@ -27,7 +31,7 @@ function App() {
 		try {
 			const completions = env?.languageService.getCompletionsAtPosition(
 				'index.ts',
-				pos,
+				pos + 61,
 				{}
 			)
 			if (!completions) {
